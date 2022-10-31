@@ -1,5 +1,6 @@
-import { Component } from "react";
-
+import { Component } from 'react';
+import { ImageErrorView } from 'components/ImageErrorView /ImageErrorView';
+import { ImageGalleryItem } from 'components/ImageGalleryItem';
 export class ImageGallery extends Component {
   state = {
     image: null,
@@ -12,35 +13,51 @@ export class ImageGallery extends Component {
     if (prevImage !== nextImage) {
       this.setState({ loading: true });
 
-      fetch(`https://pixabay.com/api/?key=25755107-c5ecbaee54c3d5c87c2809c98&q=${nextImage}`)
-        .then((response) => {
+      fetch(
+        `https://pixabay.com/api/?q=${nextImage}&page=1&key=25755107-c5ecbaee54c3d5c87c2809c98&image_type=photo&orientation=horizontal&per_page=12`
+      )
+        .then(response => {
           if (response.ok) {
             return response.json();
           }
           return Promise.reject(
-            new Error("Упс что-то пошло не так! Видимо в нашей галерее еще такого нет")
+            new Error(
+              'Упс что-то пошло не так! Видимо в нашей галерее еще такого нет'
+            )
           );
         })
-        .then((image) => this.setState({ image }))
-        .catch((error) => this.setState({ error }))
+        .then(image => this.setState({ image: image.hits }))
+        .catch(error => this.setState({ error }))
         .finally(this.setState({ loading: false }));
     }
   }
 
   render() {
     const { image, loading, error } = this.state;
+    if (image?.length === 0) {
+      return (
+        <ImageErrorView
+          message={error?.message ? error.message : 'Ничего не найдено'}
+        />
+      );
+    }
     return (
       <>
-        {error && <h1>{error.message}</h1>}
         {loading && <div>Загружаем...</div>}
-        <ul className="gallery">
-          {image && (
-            <li key={image.hits[0].id}>
-              <img src={image.hits[0].webformatURL} alt={image.hits[0].tags} width="300" />
-            </li>
-          )}
-        </ul>
+        <ul>{image && <ImageGalleryItem data={image} />}</ul>
       </>
     );
   }
 }
+
+//  {
+//    image && (
+//      <li key={image.hits[0].id}>
+//        <img
+//          src={image.hits[0].webformatURL}
+//          alt={image.hits[0].tags}
+//          width="300"
+//        />
+//      </li>
+//    );
+//  }
