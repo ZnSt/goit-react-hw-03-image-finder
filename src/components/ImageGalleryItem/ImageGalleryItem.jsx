@@ -1,8 +1,9 @@
+import { Item, Image } from './ImageGalleryItem.styled';
 export const ImageGalleryItem = ({ data = [] }) => {
   console.log(data);
   return data.map(({ id, webformatURL, tags }) => (
-    <li key={id}>
-      <img src={webformatURL} alt={tags} width="300" />
-    </li>
+    <Item key={id}>
+      <Image src={webformatURL} alt={tags} />
+    </Item>
   ));
 };

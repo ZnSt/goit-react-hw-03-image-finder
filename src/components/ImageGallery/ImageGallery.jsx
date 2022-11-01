@@ -1,6 +1,8 @@
 import { Component } from 'react';
 import { ImageErrorView } from 'components/ImageErrorView /ImageErrorView';
 import { ImageGalleryItem } from 'components/ImageGalleryItem';
+import { LoaderBtn } from 'components/Button';
+import { List } from './ImageGallery.styled';
 export class ImageGallery extends Component {
   state = {
     image: null,
@@ -37,14 +39,17 @@ export class ImageGallery extends Component {
     if (image?.length === 0) {
       return (
         <ImageErrorView
-          message={error?.message ? error.message : 'Ничего не найдено'}
+          message={
+            error?.message ? error.message : 'Упс...Кажется ничего не найдено'
+          }
         />
       );
     }
     return (
       <>
         {loading && <div>Загружаем...</div>}
-        <ul>{image && <ImageGalleryItem data={image} />}</ul>
+        <List>{image && <ImageGalleryItem data={image} />}</List>
+        <LoaderBtn />
       </>
     );
   }
