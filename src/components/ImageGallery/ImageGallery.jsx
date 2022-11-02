@@ -1,20 +1,37 @@
 import { Component } from 'react';
+import { Audio } from 'react-loader-spinner';
+
 import { ImageErrorView } from 'components/ImageErrorView /ImageErrorView';
 import { ImageGalleryItem } from 'components/ImageGalleryItem';
 import { LoaderBtn } from 'components/Button';
+import { Modal } from 'components/Modal';
 import { List } from './ImageGallery.styled';
 export class ImageGallery extends Component {
   state = {
     image: null,
-    loading: false,
     error: null,
+    largeImage: { src: '', alt: '' },
+    showModal: false,
+    loading: false,
+    page: 1,
   };
+
+  openModal = id => {
+    const pictures = this.state.image;
+    const { largeImageURL, tags } = pictures.find(picture => picture.id === id);
+    this.setState({ largeImage: { src: largeImageURL, alt: tags } });
+    this.setState({ showModal: true });
+  };
+
+  closeModal = () => {
+    this.setState({ showModal: false, largeImage: { src: '', alt: '' } });
+  };
+
   componentDidUpdate(prevProps, prevState) {
     const prevImage = prevProps.imageName;
     const nextImage = this.props.imageName;
     if (prevImage !== nextImage) {
       this.setState({ loading: true });
-
       fetch(
         `https://pixabay.com/api/?q=${nextImage}&page=1&key=25755107-c5ecbaee54c3d5c87c2809c98&image_type=photo&orientation=horizontal&per_page=12`
       )
@@ -35,7 +52,7 @@ export class ImageGallery extends Component {
   }
 
   render() {
-    const { image, loading, error } = this.state;
+    const { image, error, showModal, largeImage } = this.state;
     if (image?.length === 0) {
       return (
         <ImageErrorView
@@ -47,22 +64,33 @@ export class ImageGallery extends Component {
     }
     return (
       <>
-        {loading && <div>Загружаем...</div>}
-        <List>{image && <ImageGalleryItem data={image} />}</List>
+        <List>
+          {image?.map(({ id, webformatURL, tags }) => (
+            <ImageGalleryItem
+              key={id}
+              id={id}
+              webformatURL={webformatURL}
+              tags={tags}
+              openModal={this.openModal}
+            />
+          ))}
+        </List>
+        {showModal && (
+          <Modal closeModal={this.closeModal} largeImage={largeImage} />
+        )}
         <LoaderBtn />
+        {this.state.loading && (
+          <Audio
+            height="80"
+            width="80"
+            radius="9"
+            color="green"
+            ariaLabel="loading"
+            wrapperStyle
+            wrapperClass
+          />
+        )}
       </>
     );
   }
 }
-
-//  {
-//    image && (
-//      <li key={image.hits[0].id}>
-//        <img
-//          src={image.hits[0].webformatURL}
-//          alt={image.hits[0].tags}
-//          width="300"
-//        />
-//      </li>
-//    );
-//  }
